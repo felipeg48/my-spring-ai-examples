@@ -1,0 +1,5 @@
+= My Spring AI examples
+
+These are some example to undertand better how AI works and how Spring AI can be integrated.
+
+- `kb` project: Post a Asciidoc Content and applies RAG using Ollama so we can ask about the its content.

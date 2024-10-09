@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AsciiDoc RAG Application</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        #app {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        textarea, input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .response {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #e7f3fe;
+            border-left: 5px solid #2196F3;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <h1>AsciiDoc RAG Application</h1>
+    <div>
+        <h2>Upload AsciiDoc Content</h2>
+        <textarea v-model="asciiDocContent" rows="10" placeholder="Paste your AsciiDoc content here"></textarea>
+        <button @click="processDocument">Process Document</button>
+    </div>
+    <div>
+        <h2>Ask a Question</h2>
+        <input type="text" v-model="question" placeholder="Enter your question">
+        <button @click="askQuestion">Ask</button>
+    </div>
+    <div v-if="answer" class="response">
+        <h3>Answer:</h3>
+        <p v-html="answer"></p>
+    </div>
+</div>
+
+<script>
+    const { createApp, ref } = Vue
+
+    createApp({
+        setup() {
+            const asciiDocContent = ref('')
+            const question = ref('')
+            const answer = ref('')
+
+            const processDocument = async () => {
+                try {
+                    await axios.post('/api/rag/process', asciiDocContent.value, {
+                        headers: { 'Content-Type': 'text/plain' }
+                    })
+                    alert('Document processed successfully!')
+                } catch (error) {
+                    console.error('Error processing document:', error)
+                    alert('Error processing document. Please try again.')
+                }
+            }
+
+            const askQuestion = async () => {
+                try {
+                    const response = await axios.get('/api/rag/query', {
+                        params: { question: question.value }
+                    })
+                    answer.value = response.data
+                } catch (error) {
+                    console.error('Error asking question:', error)
+                    alert('Error asking question. Please try again.')
+                }
+            }
+
+            return {
+                asciiDocContent,
+                question,
+                answer,
+                processDocument,
+                askQuestion
+            }
+        }
+    }).mount('#app')
+</script>
+</body>
+</html>
